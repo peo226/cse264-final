@@ -25,9 +25,10 @@ Built for CSE264 — Lehigh University.
 ---
 
 ## Project Structure
-/
-├── client/          # React + Vite frontend
-└── server/          # Express backend
+
+/  
+├── client/          # React + Vite frontend  
+└── server/          # Express backend  
 
 ---
 
@@ -75,12 +76,14 @@ npm install
 Open two terminals:
 
 **Terminal 1 — backend:**
+
 ```bash
 cd server
 npm run dev
 ```
 
 **Terminal 2 — frontend:**
+
 ```bash
 cd client
 npm run dev
