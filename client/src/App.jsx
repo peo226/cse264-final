@@ -1,26 +1,32 @@
-import {useState, useEffect} from 'react'
-
+import { Routes, Route } from 'react-router-dom'
+import Navbar from './components/layout/Navbar'
+import Home from './pages/Home'
+import SearchResults from './pages/SearchResults'
+import MovieDetail from './pages/MovieDetail'
+import Watchlist from './pages/Watchlist'
+import Profile from './pages/Profile'
+import AdminDashboard from './pages/AdminDashboard'
+import Auth from './pages/Auth'
+import './App.css'
 
 function App() {
-  const [apiStatus, setAPIStatus] = useState()
-
-  useEffect(() => {
-    fetch('http://localhost:3000/up')
-    .then(res => res.json())
-    .then(result => {
-      console.log(result.status)
-      setAPIStatus(result)
-  })
-  }, [])
-
-  
   return (
-    <div>
-    <h1>To get started, begin editing SRC/App.js</h1>
-    {apiStatus ? <h2>Testing app end point: <div style={{color: apiStatus.status === 'up' ? 'green':'red'}}>{apiStatus.status}</div></h2>:null }
+    <div className="web-shell">
+      <Navbar />
+
+      <main className="web-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/watchlist" element={<Watchlist />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/auth" element={<Auth />} />
+        </Routes>
+      </main>
     </div>
   )
-   
 }
 
-export default App;
+export default App
