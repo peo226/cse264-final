@@ -39,7 +39,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-left">
         <Link to="/" className="navbar-logo">
-          CineList
+          Movie Watchlist
         </Link>
       </div>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import MovieGrid from '../components/Movies/MovieGrid'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { getMovieDetails } from '../lib/tmdb'
 
 function Watchlist() {
   const { user } = useAuth()
@@ -40,22 +41,22 @@ function Watchlist() {
       return
     }
 
-    const { data: movieRows, error: movieError } = await supabase
-      .from('movies')
-      .select('*')
-      .in('id', movieIds)
+    try {
+      const movieDetails = await Promise.all(
+        movieIds.map(async (movieId) => {
+          const movie = await getMovieDetails(movieId)
+          return {
+            ...movie,
+            poster: movie.poster_url,
+            year: movie.release_year,
+          }
+        })
+      )
 
-    if (movieError) {
+      setWatchlistMovies(movieDetails)
+    } catch (err) {
       setError('Unable to load watchlist movies.')
       setWatchlistMovies([])
-    } else {
-      const normalizedMovies = (movieRows || []).map((movie) => ({
-        ...movie,
-        poster: movie.poster_url,
-        year: movie.release_year,
-      }))
-
-      setWatchlistMovies(normalizedMovies)
     }
 
     setLoading(false)

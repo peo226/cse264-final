@@ -6,6 +6,7 @@ import ReviewList from '../components/Movies/ReviewList'
 import WatchlistButton from '../components/Movies/WatchlistButton'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { getMovieDetails } from '../lib/tmdb'
 
 function MovieDetail() {
   const { id } = useParams()
@@ -22,23 +23,24 @@ function MovieDetail() {
 
   useEffect(() => {
     const loadMovieDetail = async () => {
+      if (Number.isNaN(movieId)) {
+        setError('Invalid movie id.')
+        setLoading(false)
+        return
+      }
+
       setLoading(true)
       setError('')
 
-      const { data: movieData, error: movieError } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('id', movieId)
-        .single()
-
-      if (movieError || !movieData) {
+      try {
+        const movieData = await getMovieDetails(movieId)
+        setMovie(movieData)
+      } catch (err) {
         setError('Movie not found.')
         setMovie(null)
         setLoading(false)
         return
       }
-
-      setMovie(movieData)
 
       const { data: reviewRows, error: reviewError } = await supabase
         .from('reviews')
@@ -102,12 +104,7 @@ function MovieDetail() {
       setLoading(false)
     }
 
-    if (!Number.isNaN(movieId)) {
-      loadMovieDetail()
-    } else {
-      setError('Invalid movie id.')
-      setLoading(false)
-    }
+    loadMovieDetail()
   }, [movieId, user])
 
   const handleAddReview = async (reviewText) => {

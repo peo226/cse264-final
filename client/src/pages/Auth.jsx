@@ -11,7 +11,7 @@ function Auth() {
     <section className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Welcome to CineList</h1>
+          <h1>Welcome to Movie Watchlist App</h1>
           <p>Track, rate, and discover films</p>
         </div>
 

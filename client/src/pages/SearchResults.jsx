@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SearchBar from '../components/Movies/SearchBar'
 import MovieGrid from '../components/Movies/MovieGrid'
-import { supabase } from '../lib/supabase'
+import { searchMovies } from '../lib/tmdb'
 
 function SearchResults() {
   const [searchParams] = useSearchParams()
@@ -14,30 +14,22 @@ function SearchResults() {
 
   useEffect(() => {
     const loadSearchResults = async () => {
+      if (!searchQuery.trim()) {
+        setMovies([])
+        setLoading(false)
+        setError('')
+        return
+      }
+
       setLoading(true)
       setError('')
 
-      let query = supabase.from('movies').select('*')
-
-      if (searchQuery.trim()) {
-        query = query.ilike('title', `%${searchQuery.trim()}%`)
-      }
-
-      const { data, error } = await query.order('release_year', {
-        ascending: false,
-      })
-
-      if (error) {
+      try {
+        const results = await searchMovies(searchQuery)
+        setMovies(results)
+      } catch (err) {
         setError('Unable to search movies right now.')
         setMovies([])
-      } else {
-        const normalizedMovies = (data || []).map((movie) => ({
-          ...movie,
-          poster: movie.poster_url,
-          year: movie.release_year,
-        }))
-
-        setMovies(normalizedMovies)
       }
 
       setLoading(false)
@@ -53,7 +45,7 @@ function SearchResults() {
         <p className="search-results-subtitle">
           {searchQuery
             ? `Showing results for "${searchQuery}"`
-            : 'Browse all available movies.'}
+            : 'Enter a movie title to search.'}
         </p>
       </div>
 
@@ -66,7 +58,11 @@ function SearchResults() {
       ) : (
         <MovieGrid
           movies={movies}
-          emptyMessage={`No movies found for "${searchQuery}".`}
+          emptyMessage={
+            searchQuery
+              ? `No movies found for "${searchQuery}".`
+              : 'Search for a movie to see results.'
+          }
         />
       )}
     </section>

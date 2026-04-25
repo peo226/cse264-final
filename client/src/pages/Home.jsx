@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import SearchBar from '../components/Movies/SearchBar'
 import MovieGrid from '../components/Movies/MovieGrid'
-import { supabase } from '../lib/supabase'
+import { getFeaturedMovies } from '../lib/tmdb'
 
 function Home() {
   const [featuredMovies, setFeaturedMovies] = useState([])
@@ -13,23 +13,12 @@ function Home() {
       setLoading(true)
       setError('')
 
-      const { data, error } = await supabase
-        .from('movies')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(6)
-
-      if (error) {
+      try {
+        const movies = await getFeaturedMovies()
+        setFeaturedMovies(movies)
+      } catch (err) {
         setError('Unable to load featured movies right now.')
         setFeaturedMovies([])
-      } else {
-        const normalizedMovies = (data || []).map((movie) => ({
-          ...movie,
-          poster: movie.poster_url,
-          year: movie.release_year,
-        }))
-
-        setFeaturedMovies(normalizedMovies)
       }
 
       setLoading(false)
