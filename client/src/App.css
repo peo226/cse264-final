@@ -54,6 +54,27 @@
   cursor: pointer;
 }
 
+.navbar-user {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.page-message {
+  padding: 16px;
+  border-radius: 10px;
+  background-color: white;
+  color: #374151;
+}
+
+.page-message.error {
+  color: #b91c1c;
+  background-color: #fee2e2;
+}
+
+.inline-note {
+  color: #6b7280;
+}
+
 .movie-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -155,13 +176,20 @@
   color: #111827;
 }
 
-.search-bar-button {
+.search-bar-button,
+.btn-primary,
+.btn-google {
   border: none;
   border-radius: 8px;
   padding: 12px 18px;
   background-color: #2563eb;
   color: white;
   cursor: pointer;
+}
+
+.btn-google {
+  width: 100%;
+  background-color: #111827;
 }
 
 .rating-stars {
@@ -277,6 +305,230 @@
   background-color: #16a34a;
 }
 
+.auth-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: white;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.auth-header {
+  margin-bottom: 20px;
+}
+
+.auth-header h1 {
+  margin: 0 0 8px 0;
+  color: #111827;
+}
+
+.auth-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-tab {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  color: #111827;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.auth-tab.active {
+  background-color: #111827;
+  color: white;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.divider {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0;
+  color: #6b7280;
+}
+
+.error-message {
+  color: #b91c1c;
+  font-size: 0.95rem;
+}
+
+.home-page,
+.search-results-page,
+.watchlist-page,
+.profile-page,
+.movie-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-hero,
+.search-results-header,
+.watchlist-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-title,
+.search-results-title,
+.watchlist-title,
+.movie-detail-title,
+.profile-title {
+  margin: 0;
+  color: #111827;
+}
+
+.home-title {
+  font-size: 2.2rem;
+}
+
+.search-results-title,
+.watchlist-title,
+.profile-title {
+  font-size: 2rem;
+}
+
+.home-subtitle,
+.search-results-subtitle,
+.watchlist-subtitle,
+.movie-detail-subtitle,
+.profile-email,
+.profile-joined {
+  margin: 0;
+  color: #4b5563;
+}
+
+.home-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-section-title,
+.movie-detail-section-title,
+.profile-section-title {
+  margin: 0;
+  color: #111827;
+}
+
+.movie-detail-top {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.movie-detail-poster {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  background-color: #e5e7eb;
+}
+
+.movie-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.movie-detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.movie-detail-meta p,
+.movie-detail-overview {
+  margin: 0;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.profile-stat-card,
+.profile-section,
+.admin-page,
+.not-found-page {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.profile-stat-number {
+  margin: 0 0 8px 0;
+  font-size: 1.8rem;
+  color: #111827;
+}
+
+.profile-stat-label,
+.profile-section-text {
+  margin: 0;
+  color: #6b7280;
+}
+
+.not-found-page {
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .web-content {
     padding: 16px;
@@ -303,276 +555,11 @@
   .search-bar-button {
     width: 100%;
   }
-}
 
-.home-page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.home-hero {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.home-title {
-  margin: 0;
-  font-size: 2.2rem;
-  color: #111827;
-}
-
-.home-subtitle {
-  margin: 0;
-  color: #4b5563;
-  font-size: 1rem;
-}
-
-.home-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.home-section-title {
-  margin: 0;
-  color: #111827;
-  font-size: 1.4rem;
-}
-
-.search-results-page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.search-results-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.search-results-title {
-  margin: 0;
-  font-size: 2rem;
-  color: #111827;
-}
-
-.search-results-subtitle {
-  margin: 0;
-  color: #4b5563;
-}
-
-.movie-detail-page {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.movie-detail-top {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 32px;
-  align-items: start;
-}
-
-.movie-detail-poster-wrapper {
-  width: 100%;
-}
-
-.movie-detail-poster {
-  width: 100%;
-  border-radius: 12px;
-  object-fit: cover;
-  background-color: #e5e7eb;
-}
-
-.movie-detail-info {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.movie-detail-title {
-  margin: 0;
-  font-size: 2rem;
-  color: #111827;
-}
-
-.movie-detail-subtitle {
-  margin: 0;
-  color: #4b5563;
-}
-
-.movie-detail-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #111827;
-}
-
-.movie-detail-meta p {
-  margin: 0;
-}
-
-.movie-detail-overview {
-  margin: 0;
-  color: #374151;
-  line-height: 1.7;
-}
-
-.movie-detail-actions {
-  margin-top: 8px;
-}
-
-.movie-detail-rating,
-.movie-detail-reviews {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.movie-detail-section-title {
-  margin: 0;
-  font-size: 1.3rem;
-  color: #111827;
-}
-
-@media (max-width: 768px) {
   .movie-detail-top {
     grid-template-columns: 1fr;
   }
-}
 
-.watchlist-page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.watchlist-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.watchlist-title {
-  margin: 0;
-  font-size: 2rem;
-  color: #111827;
-}
-
-.watchlist-subtitle {
-  margin: 0;
-  color: #4b5563;
-}
-
-.profile-page {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background-color: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.profile-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background-color: #2563eb;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.profile-title {
-  margin: 0;
-  font-size: 2rem;
-  color: #111827;
-}
-
-.profile-email,
-.profile-joined {
-  margin: 0;
-  color: #4b5563;
-}
-
-.profile-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.profile-stat-card {
-  background-color: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.profile-stat-number {
-  margin: 0 0 8px 0;
-  font-size: 1.8rem;
-  color: #111827;
-}
-
-.profile-stat-label {
-  margin: 0;
-  color: #6b7280;
-}
-
-.profile-section {
-  background-color: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.profile-section-title {
-  margin: 0 0 12px 0;
-  font-size: 1.3rem;
-  color: #111827;
-}
-
-.profile-section-text {
-  margin: 0;
-  color: #374151;
-  line-height: 1.7;
-}
-
-.btn-danger {
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-danger:hover {
-  background-color: #dc2626;
-}
-
-@media (max-width: 768px) {
   .profile-header {
     flex-direction: column;
     align-items: flex-start;

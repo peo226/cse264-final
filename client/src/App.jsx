@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
-
 import Navbar from './components/layout/Navbar'
 import Home from './pages/Home'
 import SearchResults from './pages/SearchResults'
@@ -12,7 +11,6 @@ import AdminDashboard from './pages/AdminDashboard'
 import Auth from './pages/Auth'
 import NotFound from './pages/NotFound'
 import './App.css'
-
 
 function App() {
   return (
@@ -25,9 +23,30 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/movie/:id" element={<MovieDetail />} />
-          <Route path="/watchlist" element={<ProtectedRoute><Watchlist /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route
+            path="/watchlist"
+            element={
+              <ProtectedRoute>
+                <Watchlist />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/auth" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,41 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import MovieGrid from '../components/Movies/MovieGrid'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 function Watchlist() {
-  const [watchlistMovies, setWatchlistMovies] = useState([
-    {
-      id: 1,
-      title: 'Inception',
-      year: 2010,
-      poster:
-        'https://image.tmdb.org/t/p/w500/8IB2e4r4oVhHnANbnm7O3Tj6tF8.jpg',
-      overview:
-        'A skilled thief is offered a chance to erase his criminal history by planting an idea into a target’s subconscious through dream-sharing technology.',
-    },
-    {
-      id: 2,
-      title: 'Interstellar',
-      year: 2014,
-      poster:
-        'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-      overview:
-        'A team of explorers travels through a wormhole in space in an attempt to ensure humanity’s survival as Earth becomes increasingly uninhabitable.',
-    },
-    {
-      id: 4,
-      title: 'Parasite',
-      year: 2019,
-      poster:
-        'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-      overview:
-        'A poor family gradually infiltrates the lives of a wealthy household, leading to unexpected consequences and a sharp critique of class inequality.',
-    },
-  ])
+  const { user } = useAuth()
 
-  const handleRemoveMovie = (movieToRemove) => {
-    setWatchlistMovies((prevMovies) =>
-      prevMovies.filter((movie) => movie.id !== movieToRemove.id)
-    )
+  const [watchlistMovies, setWatchlistMovies] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const loadWatchlist = async () => {
+    if (!user) {
+      setWatchlistMovies([])
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    const { data: watchlistRows, error: watchlistError } = await supabase
+      .from('watchlist')
+      .select('movie_id')
+      .eq('user_id', user.id)
+
+    if (watchlistError) {
+      setError('Unable to load watchlist.')
+      setWatchlistMovies([])
+      setLoading(false)
+      return
+    }
+
+    const movieIds = (watchlistRows || []).map((row) => row.movie_id)
+
+    if (movieIds.length === 0) {
+      setWatchlistMovies([])
+      setLoading(false)
+      return
+    }
+
+    const { data: movieRows, error: movieError } = await supabase
+      .from('movies')
+      .select('*')
+      .in('id', movieIds)
+
+    if (movieError) {
+      setError('Unable to load watchlist movies.')
+      setWatchlistMovies([])
+    } else {
+      const normalizedMovies = (movieRows || []).map((movie) => ({
+        ...movie,
+        poster: movie.poster_url,
+        year: movie.release_year,
+      }))
+
+      setWatchlistMovies(normalizedMovies)
+    }
+
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    loadWatchlist()
+  }, [user])
+
+  const handleRemoveMovie = async (movieToRemove) => {
+    if (!user) return
+
+    const { error } = await supabase
+      .from('watchlist')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('movie_id', movieToRemove.id)
+
+    if (!error) {
+      setWatchlistMovies((prevMovies) =>
+        prevMovies.filter((movie) => movie.id !== movieToRemove.id)
+      )
+    }
   }
 
   return (
@@ -47,12 +90,18 @@ function Watchlist() {
         </p>
       </div>
 
-      <MovieGrid
-        movies={watchlistMovies}
-        showRemove={true}
-        onRemove={handleRemoveMovie}
-        emptyMessage="Your watchlist is empty."
-      />
+      {loading ? (
+        <div className="page-message">Loading watchlist...</div>
+      ) : error ? (
+        <div className="page-message error">{error}</div>
+      ) : (
+        <MovieGrid
+          movies={watchlistMovies}
+          showRemove={true}
+          onRemove={handleRemoveMovie}
+          emptyMessage="Your watchlist is empty."
+        />
+      )}
     </section>
   )
 }
