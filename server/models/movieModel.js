@@ -1,5 +1,10 @@
 import { query } from "../db/postgres.js";
 
+export const findAll = async () => {
+  const result = await query("SELECT * FROM movies ORDER BY id DESC");
+  return result.rows;
+};
+
 export const findById = async (id) => {
   const result = await query("SELECT * FROM movies WHERE id = $1", [id]);
   return result.rows[0] || null;
