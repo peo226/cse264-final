@@ -19,7 +19,8 @@ and share reviews with other users.
 - **Frontend:** React + Vite, React Router, CSS
 - **Backend:** Node.js + Express
 - **Database:** PostgreSQL (AWS RDS)
-- **External API:** TMDb (The Movie Database)
+- **Authentication:** Supabase Auth / JSON Web Tokens (JWT)
+- **External API:** TMDb (The Movie Database), Google OAuth
 
 ---
 
@@ -45,20 +46,34 @@ git clone <repo-url>
 cd <project-folder>
 ```
 
-### 2. Set up environment variables
+### 2. Go to [supabase.com](https://supabase.com) and create a free account
+2. Create a new project
+3. Go to **Settings → API** and copy:
+   - **Project URL** → `VITE_SUPABASE_URL`
+   - **anon/public key** → `VITE_SUPABASE_ANON_KEY`
 
-Copy the `.env` file shared by the team into the `server/` directory.
-It should contain:
+**For Google OAuth (optional):**
+- In Supabase dashboard, go to **Authentication → Providers → Google**
+- Toggle it ON
+- Get credentials from [Google Cloud Console](https://console.cloud.google.com/)
+- Add redirect URI: `https://your-supabase-url/auth/v1/callback`
 
+### 3. Set up environment variables
+**In `client/.env`:**
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+
+**In `server/.env`:**
 POSTGRES_USERNAME=
 POSTGRES_PASSWORD=
 POSTGRES_HOST=
 POSTGRES_PORT=
 POSTGRES_DBNAME=
 
+
 > Never commit the `.env` file. It is listed in `.gitignore`.
 
-### 3. Install dependencies
+### 4. Install dependencies
 
 ```bash
 # Install server dependencies
@@ -94,14 +109,14 @@ The client runs on `http://localhost:5173` and the server on `http://localhost:3
 
 ## Pages
 
-| Page | Route | Auth required |
-|------|-------|---------------|
-| Home | `/` | No |
-| Search Results | `/search` | No |
-| Movie Detail | `/movies/:id` | No |
-| Login / Register | `/auth` | No |
-| Watchlist & Profile | `/watchlist` | Yes |
-| Admin Dashboard | `/admin` | Admin only |
+| Page | Route | Auth required | Role |
+|------|-------|---------------|------|
+| Home | `/` | No | Anyone |
+| Search Results | `/search` | No | Anyone |
+| Movie Detail | `/movie/:id` | No | Anyone |
+| Login / Register | `/auth` | No | Anyone |
+| Watchlist & Profile | `/watchlist` | Yes | User+ |
+| Admin Dashboard | `/admin` | Yes | Admin only |
 
 ---
 
@@ -114,16 +129,29 @@ The client runs on `http://localhost:5173` and the server on `http://localhost:3
 
 ---
 
+## Authentication Flow
+
+1. User registers or logs in via email/password or Google OAuth
+2. Supabase issues a JWT token
+3. Token is stored in browser localStorage
+4. Token is attached to requests via `Authorization: Bearer <token>` header
+5. Protected routes (`/watchlist`, `/profile`, `/admin`) redirect unauthenticated users to `/auth`
+6. Token persists across page refreshes via `AuthContext`
+
+**Related files:**
+- `client/src/lib/supabase.js` — Supabase client initialization
+- `client/src/context/AuthContext.jsx` — Session state, login/logout/register functions
+- `client/src/components/layout/ProtectedRoute.jsx` — Route protection middleware
+
+---
+
 ## Architecture Notes
 
-- Authentication is handled with JWTs issued by the server on login. The token
-  is stored client-side and sent with each request via the `Authorization` header.
-- The TMDb external API is called from the **client** directly using a public
-  API key for movie search and detail data.
-- All user data (watchlists, ratings, reviews) is stored in the PostgreSQL
-  database on AWS RDS.
-- Protected routes on the server check the JWT and the user's role before
-  allowing access.
+- **Frontend authentication** is handled entirely by Supabase. User sessions are managed in `AuthContext`.
+- **Backend authentication** — Vincent's Express routes receive the Supabase JWT and verify it to identify the user. The JWT is sent via `Authorization` header with each request.
+- **Database** — User account data lives in Supabase Auth. App data (watchlists, reviews, ratings) lives in AWS RDS PostgreSQL and is keyed to the Supabase user ID.
+- **TMDb API** is called from the frontend directly for movie search and detail data.
+- **Protected routes** on the server check the JWT and user role before allowing access.
 
 ---
 
