@@ -39,8 +39,16 @@ export function AuthProvider({ children }) {
         await supabase.auth.signOut()
     }
 
+    const deleteAccount = async () => {
+        const { error } = await supabase.auth.admin.deleteUser(user.id)
+        if (error) {
+            throw error
+        }
+        await logout()
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, register, login, loginWithGoogle, logout }}>
+        <AuthContext.Provider value={{ user, loading, register, login, loginWithGoogle, logout, deleteAccount }}>
             {!loading && children}
         </AuthContext.Provider>
     )

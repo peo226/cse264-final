@@ -1,3 +1,6 @@
+import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
+
 function Profile() {
   const userProfile = {
     username: 'MovieFan01',
@@ -6,6 +9,22 @@ function Profile() {
     watchlistCount: 12,
     reviewCount: 5,
     favoriteGenre: 'Sci-Fi',
+  }
+
+
+  const { deleteAccount } = useAuth()
+  const navigate = useNavigate()
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm('Are you sure? This cannot be undone.')) {
+      /*try {
+        await deleteAccount()
+        navigate('/') // Redirect to home after deletion
+      } catch (error) {
+        console.error('Error deleting account:', error)
+      }*/
+      console.error('does nothing for now. implement api endpoint later')
+    }
   }
 
   return (
@@ -46,6 +65,10 @@ function Profile() {
           Later, it can be connected to real authentication and database data.
         </p>
       </div>
+      
+      <button onClick={handleDeleteAccount} className="btn-danger">
+        Delete account
+      </button>
     </section>
   )
 }

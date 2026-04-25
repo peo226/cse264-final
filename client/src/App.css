@@ -559,6 +559,19 @@
   line-height: 1.7;
 }
 
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
 @media (max-width: 768px) {
   .profile-header {
     flex-direction: column;
