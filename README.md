@@ -3,7 +3,6 @@
 A web application where users can search for movies, build personal watchlists,
 and share reviews with other users.
 
-Built for CSE264 — Lehigh University.
 
 ## Team
 
@@ -90,7 +89,6 @@ npm run dev
 ```
 
 The client runs on `http://localhost:5173` and the server on `http://localhost:3000`
-(update ports here if yours differ).
 
 ---
 
@@ -129,8 +127,3 @@ The client runs on `http://localhost:5173` and the server on `http://localhost:3
 
 ---
 
-## Git Workflow
-
-- Branch naming: `feature/<short-description>` or `fix/<short-description>`
-- Open a pull request to `main` when your feature is ready
-- At least one teammate should review before merging
