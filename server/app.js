@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 
 import * as movieRoutes from "./routes/movies.js";
+import * as watchlistRoutes from "./routes/watchlist.js";
 import * as userRoutes from "./routes/users.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/movies", movieRoutes.router);
+app.use("/watchlist", watchlistRoutes.router);
 app.use("/users", userRoutes.router);
 
 app.use(errorHandler);

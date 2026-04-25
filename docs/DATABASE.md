@@ -26,7 +26,9 @@ CREATE TABLE users (
   id UUID PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
   username VARCHAR(100) UNIQUE,
-  role VARCHAR(20) NOT NULL DEFAULT 'user'
+  role VARCHAR(20) NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- Local movie cache / lookup table for TMDb movies
@@ -41,6 +43,7 @@ CREATE TABLE movies (
 CREATE TABLE watchlist (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   movie_id INT NOT NULL REFERENCES movies(tmdb_id) ON DELETE CASCADE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   PRIMARY KEY (user_id, movie_id)
 );
 
@@ -49,6 +52,7 @@ CREATE TABLE ratings (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   movie_id INT NOT NULL REFERENCES movies(tmdb_id) ON DELETE CASCADE,
   rating_value INT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   PRIMARY KEY (user_id, movie_id)
 );
 
@@ -57,7 +61,8 @@ CREATE TABLE reviews (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   movie_id INT NOT NULL REFERENCES movies(tmdb_id) ON DELETE CASCADE,
-  review_text TEXT NOT NULL
+  review_text TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- Comments on reviews
@@ -65,7 +70,8 @@ CREATE TABLE comments (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   review_id BIGINT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
-  comment_text TEXT NOT NULL
+  comment_text TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ```

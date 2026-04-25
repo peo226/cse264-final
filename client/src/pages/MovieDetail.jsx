@@ -1,130 +1,133 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import RatingStars from '../components/Movies/RatingStars'
-import ReviewForm from '../components/Movies/ReviewForm'
-import ReviewList from '../components/Movies/ReviewList'
-import WatchlistButton from '../components/Movies/WatchlistButton'
-import { supabase } from '../lib/supabase'
-import { useAuth } from '../context/AuthContext'
-import { getMovieDetails } from '../lib/tmdb'
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import RatingStars from "../components/Movies/RatingStars";
+import ReviewForm from "../components/Movies/ReviewForm";
+import ReviewList from "../components/Movies/ReviewList";
+import WatchlistButton from "../components/Movies/WatchlistButton";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
+import { getMovieDetails } from "../lib/tmdb";
 
 function MovieDetail() {
-  const { id } = useParams()
-  const { user } = useAuth()
+  const { id } = useParams();
+  const { user } = useAuth();
 
-  const movieId = useMemo(() => Number(id), [id])
+  const movieId = useMemo(() => Number(id), [id]);
 
-  const [movie, setMovie] = useState(null)
-  const [reviews, setReviews] = useState([])
-  const [userRating, setUserRating] = useState(0)
-  const [isInWatchlist, setIsInWatchlist] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [movie, setMovie] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [userRating, setUserRating] = useState(0);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const loadMovieDetail = async () => {
       if (Number.isNaN(movieId)) {
-        setError('Invalid movie id.')
-        setLoading(false)
-        return
+        setError("Invalid movie id.");
+        setLoading(false);
+        return;
       }
 
-      setLoading(true)
-      setError('')
+      setLoading(true);
+      setError("");
 
       try {
-        const movieData = await getMovieDetails(movieId)
-        setMovie(movieData)
+        const movieData = await getMovieDetails(movieId);
+        setMovie(movieData);
       } catch (err) {
-        setError('Movie not found.')
-        setMovie(null)
-        setLoading(false)
-        return
+        setError("Movie not found.");
+        setMovie(null);
+        setLoading(false);
+        return;
       }
 
       const { data: reviewRows, error: reviewError } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('movie_id', movieId)
-        .order('created_at', { ascending: false })
+        .from("reviews")
+        .select("*")
+        .eq("movie_id", movieId)
+        .order("created_at", { ascending: false });
 
       if (reviewError) {
-        setReviews([])
+        setReviews([]);
       } else {
-        const userIds = [...new Set((reviewRows || []).map((r) => r.user_id))]
-        let userMap = {}
+        const userIds = [...new Set((reviewRows || []).map((r) => r.user_id))];
+        let userMap = {};
 
         if (userIds.length > 0) {
           const { data: userRows } = await supabase
-            .from('users')
-            .select('id, username, email')
-            .in('id', userIds)
+            .from("users")
+            .select("id, username, email")
+            .in("id", userIds);
 
           userMap = Object.fromEntries(
             (userRows || []).map((row) => [
               row.id,
-              row.username || row.email || 'User',
-            ])
-          )
+              row.username || row.email || "User",
+            ]),
+          );
         }
 
         const formattedReviews = (reviewRows || []).map((review) => ({
           id: review.id,
-          username: userMap[review.user_id] || 'User',
+          username: userMap[review.user_id] || "User",
           rating: null,
           text: review.review_text,
-        }))
+        }));
 
-        setReviews(formattedReviews)
+        setReviews(formattedReviews);
       }
 
       if (user) {
         const { data: ratingRow } = await supabase
-          .from('ratings')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('movie_id', movieId)
-          .maybeSingle()
+          .from("ratings")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("movie_id", movieId)
+          .maybeSingle();
 
-        setUserRating(ratingRow?.rating_value || 0)
+        setUserRating(ratingRow?.rating_value || 0);
 
         const { data: watchlistRow } = await supabase
-          .from('watchlist')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('movie_id', movieId)
-          .maybeSingle()
+          .from("watchlist")
+          .select("movie_id")
+          .eq("user_id", user.id)
+          .eq("movie_id", movieId)
+          .maybeSingle();
 
-        setIsInWatchlist(!!watchlistRow)
+        setIsInWatchlist(!!watchlistRow);
       } else {
-        setUserRating(0)
-        setIsInWatchlist(false)
+        setUserRating(0);
+        setIsInWatchlist(false);
       }
 
-      setLoading(false)
-    }
+      setLoading(false);
+    };
 
-    loadMovieDetail()
-  }, [movieId, user])
+    loadMovieDetail();
+  }, [movieId, user]);
 
   const handleAddReview = async (reviewText) => {
-    if (!user) return
+    if (!user) return;
 
     const { data: profileRow } = await supabase
-      .from('users')
-      .select('username, email')
-      .eq('id', user.id)
-      .single()
+      .from("users")
+      .select("username, email")
+      .eq("id", user.id)
+      .single();
 
-    const { error } = await supabase.from('reviews').insert({
+    const { error } = await supabase.from("reviews").insert({
       user_id: user.id,
       movie_id: movieId,
       review_text: reviewText,
-    })
+    });
 
     if (!error) {
       const reviewerName =
-        profileRow?.username || profileRow?.email || user.email || 'Current User'
+        profileRow?.username ||
+        profileRow?.email ||
+        user.email ||
+        "Current User";
 
       setReviews((prevReviews) => [
         {
@@ -134,53 +137,53 @@ function MovieDetail() {
           text: reviewText,
         },
         ...prevReviews,
-      ])
+      ]);
     }
-  }
+  };
 
   const handleRatingChange = async (newRating) => {
-    if (!user) return
+    if (!user) return;
 
-    await supabase.from('ratings').upsert(
+    await supabase.from("ratings").upsert(
       {
         user_id: user.id,
         movie_id: movieId,
         rating_value: newRating,
       },
-      { onConflict: 'user_id,movie_id' }
-    )
+      { onConflict: "user_id,movie_id" },
+    );
 
-    setUserRating(newRating)
-  }
+    setUserRating(newRating);
+  };
 
   const handleWatchlistToggle = async (nextValue) => {
-    if (!user) return
+    if (!user) return;
 
     if (nextValue) {
-      await supabase.from('watchlist').insert({
+      await supabase.from("watchlist").insert({
         user_id: user.id,
         movie_id: movieId,
-      })
-      setIsInWatchlist(true)
+      });
+      setIsInWatchlist(true);
     } else {
       await supabase
-        .from('watchlist')
+        .from("watchlist")
         .delete()
-        .eq('user_id', user.id)
-        .eq('movie_id', movieId)
+        .eq("user_id", user.id)
+        .eq("movie_id", movieId);
 
-      setIsInWatchlist(false)
+      setIsInWatchlist(false);
     }
-  }
+  };
 
   if (loading) {
-    return <div className="page-message">Loading movie details...</div>
+    return <div className="page-message">Loading movie details...</div>;
   }
 
   if (error || !movie) {
     return (
-      <div className="page-message error">{error || 'Movie not found.'}</div>
-    )
+      <div className="page-message error">{error || "Movie not found."}</div>
+    );
   }
 
   return (
@@ -202,10 +205,10 @@ function MovieDetail() {
 
           <div className="movie-detail-meta">
             <p>
-              <strong>Director:</strong> {movie.director || 'Unknown'}
+              <strong>Director:</strong> {movie.director || "Unknown"}
             </p>
             <p>
-              <strong>Runtime:</strong> {movie.runtime || 'N/A'}
+              <strong>Runtime:</strong> {movie.runtime || "N/A"}
             </p>
           </div>
 
@@ -240,7 +243,7 @@ function MovieDetail() {
         <ReviewList reviews={reviews} />
       </div>
     </section>
-  )
+  );
 }
 
-export default MovieDetail
+export default MovieDetail;
