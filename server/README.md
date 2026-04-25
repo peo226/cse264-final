@@ -17,3 +17,11 @@ server/
 ├── db/                # Database connection
 └── app.js
 ```
+
+## Environment
+
+The backend verifies Supabase JWT access tokens, so it needs the project URL in `server/.env`.
+
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+```

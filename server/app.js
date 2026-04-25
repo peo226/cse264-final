@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 
-import { query } from "./db/postgres.js";
-import * as routes from "./routes/movies.js";
+import * as movieRoutes from "./routes/movies.js";
+import * as userRoutes from "./routes/users.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 // create the app
@@ -20,7 +20,8 @@ app.get("/", (req, res) => {
   res.send("Movie Watchlist API");
 });
 
-app.use("/movies", routes.router);
+app.use("/movies", movieRoutes.router);
+app.use("/users", userRoutes.router);
 
 app.use(errorHandler);
 

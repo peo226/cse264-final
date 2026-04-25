@@ -13,7 +13,7 @@
 ## SQL Statements to Create Tables
 
 ```sql
--- drops for rerunning schema setup if needed
+-- Drops for rerunning schema setup if needed
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS ratings;
@@ -26,9 +26,7 @@ CREATE TABLE users (
   id UUID PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
   username VARCHAR(100) UNIQUE,
-  role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+  role VARCHAR(20) NOT NULL DEFAULT 'user'
 );
 
 -- Local movie cache / lookup table for TMDb movies
@@ -36,63 +34,38 @@ CREATE TABLE movies (
   id BIGSERIAL PRIMARY KEY,
   tmdb_id INT NOT NULL UNIQUE,
   title VARCHAR(255) NOT NULL,
-  poster_url TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+  poster_url TEXT
 );
 
 -- Movies a user has saved to their watchlist
 CREATE TABLE watchlist (
-  user_id UUID NOT NULL,
-  movie_id INT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  PRIMARY KEY (user_id, movie_id),
-  CONSTRAINT fk_watchlist_user
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CONSTRAINT fk_watchlist_movie
-    FOREIGN KEY (movie_id) REFERENCES movies(tmdb_id) ON DELETE CASCADE
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  movie_id INT NOT NULL REFERENCES movies(tmdb_id) ON DELETE CASCADE,
+  PRIMARY KEY (user_id, movie_id)
 );
 
 -- One rating per user per movie
 CREATE TABLE ratings (
-  user_id UUID NOT NULL,
-  movie_id INT NOT NULL,
-  rating_value INT NOT NULL CHECK (rating_value BETWEEN 1 AND 5),
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  PRIMARY KEY (user_id, movie_id),
-  CONSTRAINT fk_ratings_user
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CONSTRAINT fk_ratings_movie
-    FOREIGN KEY (movie_id) REFERENCES movies(tmdb_id) ON DELETE CASCADE
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  movie_id INT NOT NULL REFERENCES movies(tmdb_id) ON DELETE CASCADE,
+  rating_value INT NOT NULL,
+  PRIMARY KEY (user_id, movie_id)
 );
 
 -- User reviews for a movie
 CREATE TABLE reviews (
   id BIGSERIAL PRIMARY KEY,
-  user_id UUID NOT NULL,
-  movie_id INT NOT NULL,
-  review_text TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_reviews_user
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CONSTRAINT fk_reviews_movie
-    FOREIGN KEY (movie_id) REFERENCES movies(tmdb_id) ON DELETE CASCADE
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  movie_id INT NOT NULL REFERENCES movies(tmdb_id) ON DELETE CASCADE,
+  review_text TEXT NOT NULL
 );
 
 -- Comments on reviews
 CREATE TABLE comments (
   id BIGSERIAL PRIMARY KEY,
-  user_id UUID NOT NULL,
-  review_id BIGINT NOT NULL,
-  comment_text TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_comments_user
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CONSTRAINT fk_comments_review
-    FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  review_id BIGINT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+  comment_text TEXT NOT NULL
 );
 
 ```
