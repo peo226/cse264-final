@@ -1,7 +1,7 @@
-import * as movieModel from "../models/movieModel.js";
+import * as movieRepository from "../repositories/movieRepository.js";
 
 export const getAllMovies = async () => {
-  return movieModel.findAll();
+  return movieRepository.findAll();
 };
 
 export const getMovieById = async (id) => {
@@ -9,7 +9,7 @@ export const getMovieById = async (id) => {
     throw new Error("Invalid movie ID");
   }
 
-  const movie = await movieModel.findById(id);
+  const movie = await movieRepository.findById(id);
   if (!movie) {
     throw new Error("Movie not found");
   }
@@ -22,7 +22,7 @@ export const getMovieByTmdbId = async (tmdbId) => {
     throw new Error("Invalid TMDb movie ID");
   }
 
-  const movie = await movieModel.findByTmdbId(tmdbId);
+  const movie = await movieRepository.findByTmdbId(tmdbId);
   if (!movie) {
     throw new Error("Movie not found");
   }
@@ -39,10 +39,10 @@ export const createMovie = async (data) => {
   }
 
   // Check for duplicates
-  const exists = await movieModel.findByTmdbId(tmdb_id);
+  const exists = await movieRepository.findByTmdbId(tmdb_id);
   if (exists) {
     throw new Error("Movie already exists");
   }
 
-  return movieModel.createMovie({ title, tmdb_id, poster_url });
+  return movieRepository.create({ title, tmdb_id, poster_url });
 };

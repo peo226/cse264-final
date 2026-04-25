@@ -1,4 +1,4 @@
-import * as userModel from "../models/userModel.js";
+import * as userRepository from "../repositories/userRepository.js";
 
 const validRoles = new Set(["user", "admin"]);
 
@@ -23,7 +23,7 @@ export const getUserById = async (id) => {
     throw error;
   }
 
-  const user = await userModel.findById(id);
+  const user = await userRepository.findById(id);
   if (!user) {
     const error = new Error("User not found");
     error.status = 404;
@@ -42,7 +42,7 @@ export const createOrSyncUser = async (data) => {
     throw error;
   }
 
-  return userModel.upsertUser({
+  return userRepository.upsert({
     id,
     email,
     username,
@@ -63,7 +63,7 @@ export const updateUser = async (id, updates) => {
     throw error;
   }
 
-  const user = await userModel.updateUser(id, { username: updates.username });
+  const user = await userRepository.update(id, { username: updates.username });
 
   if (!user) {
     const error = new Error("User not found");
@@ -81,7 +81,7 @@ export const removeUser = async (id) => {
     throw error;
   }
 
-  const deletedUser = await userModel.deleteUser(id);
+  const deletedUser = await userRepository.remove(id);
   if (!deletedUser) {
     const error = new Error("User not found");
     error.status = 404;

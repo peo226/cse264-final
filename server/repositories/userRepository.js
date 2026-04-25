@@ -1,4 +1,5 @@
 import { query } from "../db/postgres.js";
+import { toUserEntity } from "../entities/userEntity.js";
 
 export const findById = async (id) => {
   const result = await query(
@@ -8,15 +9,10 @@ export const findById = async (id) => {
     [id],
   );
 
-  return result.rows[0] || null;
+  return toUserEntity(result.rows[0] || null);
 };
 
-export const upsertUser = async ({
-  id,
-  email,
-  username = null,
-  role = "user",
-}) => {
+export const upsert = async ({ id, email, username = null, role = "user" }) => {
   const result = await query(
     `INSERT INTO users (id, email, username, role)
      VALUES ($1, $2, $3, $4)
@@ -28,10 +24,10 @@ export const upsertUser = async ({
     [id, email, username, role],
   );
 
-  return result.rows[0];
+  return toUserEntity(result.rows[0]);
 };
 
-export const updateUser = async (id, updates) => {
+export const update = async (id, updates) => {
   const result = await query(
     `UPDATE users
      SET username = $1,
@@ -41,12 +37,13 @@ export const updateUser = async (id, updates) => {
     [updates.username, id],
   );
 
-  return result.rows[0] || null;
+  return toUserEntity(result.rows[0] || null);
 };
 
-export const deleteUser = async (id) => {
+export const remove = async (id) => {
   const result = await query("DELETE FROM users WHERE id = $1 RETURNING id", [
     id,
   ]);
+
   return result.rows[0] || null;
 };
