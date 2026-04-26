@@ -36,6 +36,22 @@ function MovieDetail() {
       try {
         const movieData = await getMovieDetails(movieId);
         setMovie(movieData);
+
+        const { error: movieUpsertError } = await supabase.from("movies").upsert(
+          {
+            tmdb_id: movieData.id,
+            title: movieData.title,
+            poster_url: movieData.poster_url,
+          },
+          { onConflict: "tmdb_id" }
+        );
+
+        if (movieUpsertError) {
+          console.error(
+            "Failed to save movie into movies table:",
+            movieUpsertError
+          );
+        }
       } catch (err) {
         setError("Unable to load movie details right now.");
         setMovie(null);
@@ -128,7 +144,7 @@ function MovieDetail() {
       .from("users")
       .select("username, email")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError) {
       console.error("Failed to load profile info for review:", profileError);
