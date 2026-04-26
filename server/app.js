@@ -5,6 +5,7 @@ import "dotenv/config";
 import * as movieRoutes from "./routes/movies.js";
 import * as watchlistRoutes from "./routes/watchlist.js";
 import * as userRoutes from "./routes/users.js";
+import * as adminRoutes from "./routes/admin.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 // create the app
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 app.use("/movies", movieRoutes.router);
 app.use("/watchlist", watchlistRoutes.router);
 app.use("/users", userRoutes.router);
+app.use("/admin", adminRoutes.router);
 
 app.use(errorHandler);
 
