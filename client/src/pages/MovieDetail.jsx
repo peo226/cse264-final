@@ -20,6 +20,7 @@ function MovieDetail() {
   const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [watchlistLoading, setWatchlistLoading] = useState(false);
 
   useEffect(() => {
     const loadMovieDetail = async () => {
@@ -36,7 +37,7 @@ function MovieDetail() {
         const movieData = await getMovieDetails(movieId);
         setMovie(movieData);
       } catch (err) {
-        setError("Movie not found.");
+        setError("Unable to load movie details right now.");
         setMovie(null);
         setLoading(false);
         return;
@@ -49,22 +50,27 @@ function MovieDetail() {
         .order("created_at", { ascending: false });
 
       if (reviewError) {
+        console.error("Failed to load reviews:", reviewError);
         setReviews([]);
       } else {
         const userIds = [...new Set((reviewRows || []).map((r) => r.user_id))];
         let userMap = {};
 
         if (userIds.length > 0) {
-          const { data: userRows } = await supabase
+          const { data: userRows, error: userRowsError } = await supabase
             .from("users")
             .select("id, username, email")
             .in("id", userIds);
+
+          if (userRowsError) {
+            console.error("Failed to load review users:", userRowsError);
+          }
 
           userMap = Object.fromEntries(
             (userRows || []).map((row) => [
               row.id,
               row.username || row.email || "User",
-            ]),
+            ])
           );
         }
 
@@ -79,21 +85,29 @@ function MovieDetail() {
       }
 
       if (user) {
-        const { data: ratingRow } = await supabase
+        const { data: ratingRow, error: ratingError } = await supabase
           .from("ratings")
           .select("*")
           .eq("user_id", user.id)
           .eq("movie_id", movieId)
           .maybeSingle();
 
+        if (ratingError) {
+          console.error("Failed to load user rating:", ratingError);
+        }
+
         setUserRating(ratingRow?.rating_value || 0);
 
-        const { data: watchlistRow } = await supabase
+        const { data: watchlistRow, error: watchlistError } = await supabase
           .from("watchlist")
           .select("movie_id")
           .eq("user_id", user.id)
           .eq("movie_id", movieId)
           .maybeSingle();
+
+        if (watchlistError) {
+          console.error("Failed to check watchlist status:", watchlistError);
+        }
 
         setIsInWatchlist(!!watchlistRow);
       } else {
@@ -110,69 +124,123 @@ function MovieDetail() {
   const handleAddReview = async (reviewText) => {
     if (!user) return;
 
-    const { data: profileRow } = await supabase
+    const { data: profileRow, error: profileError } = await supabase
       .from("users")
       .select("username, email")
       .eq("id", user.id)
       .single();
 
-    const { error } = await supabase.from("reviews").insert({
+    if (profileError) {
+      console.error("Failed to load profile info for review:", profileError);
+    }
+
+    const { error: reviewInsertError } = await supabase.from("reviews").insert({
       user_id: user.id,
       movie_id: movieId,
       review_text: reviewText,
     });
 
-    if (!error) {
-      const reviewerName =
-        profileRow?.username ||
-        profileRow?.email ||
-        user.email ||
-        "Current User";
-
-      setReviews((prevReviews) => [
-        {
-          id: Date.now(),
-          username: reviewerName,
-          rating: null,
-          text: reviewText,
-        },
-        ...prevReviews,
-      ]);
+    if (reviewInsertError) {
+      console.error("Failed to submit review:", reviewInsertError);
+      return;
     }
+
+    const reviewerName =
+      profileRow?.username ||
+      profileRow?.email ||
+      user.email ||
+      "Current User";
+
+    setReviews((prevReviews) => [
+      {
+        id: Date.now(),
+        username: reviewerName,
+        rating: null,
+        text: reviewText,
+      },
+      ...prevReviews,
+    ]);
   };
 
   const handleRatingChange = async (newRating) => {
     if (!user) return;
 
-    await supabase.from("ratings").upsert(
+    const { error: ratingUpsertError } = await supabase.from("ratings").upsert(
       {
         user_id: user.id,
         movie_id: movieId,
         rating_value: newRating,
       },
-      { onConflict: "user_id,movie_id" },
+      { onConflict: "user_id,movie_id" }
     );
+
+    if (ratingUpsertError) {
+      console.error("Failed to save rating:", ratingUpsertError);
+      return;
+    }
 
     setUserRating(newRating);
   };
 
   const handleWatchlistToggle = async (nextValue) => {
-    if (!user) return;
+    if (!user || !movie || watchlistLoading) return false;
+
+    setWatchlistLoading(true);
 
     if (nextValue) {
-      await supabase.from("watchlist").insert({
-        user_id: user.id,
-        movie_id: movieId,
-      });
+      const { error: movieUpsertError } = await supabase.from("movies").upsert(
+        {
+          tmdb_id: movie.id,
+          title: movie.title,
+          poster_url: movie.poster_url,
+        },
+        { onConflict: "tmdb_id" }
+      );
+
+      if (movieUpsertError) {
+        console.error(
+          "Failed to save movie into movies table:",
+          movieUpsertError
+        );
+        setWatchlistLoading(false);
+        return false;
+      }
+
+      const { error: watchlistInsertError } = await supabase
+        .from("watchlist")
+        .insert({
+          user_id: user.id,
+          movie_id: movie.id,
+        });
+
+      if (watchlistInsertError) {
+        console.error("Failed to add to watchlist:", watchlistInsertError);
+        setWatchlistLoading(false);
+        return false;
+      }
+
       setIsInWatchlist(true);
+      setWatchlistLoading(false);
+      return true;
     } else {
-      await supabase
+      const { error: watchlistDeleteError } = await supabase
         .from("watchlist")
         .delete()
         .eq("user_id", user.id)
-        .eq("movie_id", movieId);
+        .eq("movie_id", movie.id);
+
+      if (watchlistDeleteError) {
+        console.error(
+          "Failed to remove from watchlist:",
+          watchlistDeleteError
+        );
+        setWatchlistLoading(false);
+        return false;
+      }
 
       setIsInWatchlist(false);
+      setWatchlistLoading(false);
+      return true;
     }
   };
 
@@ -182,7 +250,9 @@ function MovieDetail() {
 
   if (error || !movie) {
     return (
-      <div className="page-message error">{error || "Movie not found."}</div>
+      <div className="page-message error">
+        {error || "Unable to load movie details right now."}
+      </div>
     );
   }
 
@@ -219,6 +289,9 @@ function MovieDetail() {
               initialAdded={isInWatchlist}
               onToggle={handleWatchlistToggle}
             />
+            {watchlistLoading && (
+              <span className="inline-note">Updating watchlist...</span>
+            )}
           </div>
 
           <div className="movie-detail-rating">

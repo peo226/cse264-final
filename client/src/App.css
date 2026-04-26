@@ -565,3 +565,43 @@
     align-items: flex-start;
   }
 }
+
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-section {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.admin-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  background-color: #f9fafb;
+}
+
+.admin-card p {
+  margin: 0 0 8px 0;
+}
+
+.admin-card button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background-color: #ef4444;
+  color: white;
+  cursor: pointer;
+}

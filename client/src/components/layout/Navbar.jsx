@@ -19,7 +19,7 @@ function Navbar() {
         .from("users")
         .select("id, email, username, role")
         .eq("id", user.id)
-        .single();
+        .maybeSingle()
 
       setProfile(data || null);
     };

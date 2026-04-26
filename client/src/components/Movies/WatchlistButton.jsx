@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function WatchlistButton({ initialAdded = false, onToggle }) {
   const [isAdded, setIsAdded] = useState(initialAdded)
 
-  const handleClick = () => {
+  useEffect(() => {
+    setIsAdded(initialAdded)
+  }, [initialAdded])
+
+  const handleClick = async () => {
     const nextValue = !isAdded
-    setIsAdded(nextValue)
 
     if (onToggle) {
-      onToggle(nextValue)
+      const success = await onToggle(nextValue)
+      if (success === false) return
     }
+
+    setIsAdded(nextValue)
   }
 
   return (

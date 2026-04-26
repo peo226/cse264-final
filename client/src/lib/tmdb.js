@@ -39,25 +39,6 @@ function formatMovieSummary(movie) {
   }
 }
 
-function formatMovieDetail(movie) {
-  return {
-    id: movie.id,
-    title: movie.title,
-    poster_url: movie.poster_path
-      ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
-      : '',
-    release_year: movie.release_date
-      ? new Date(movie.release_date).getFullYear()
-      : 'N/A',
-    genre: Array.isArray(movie.genres)
-      ? movie.genres.map((genre) => genre.name).join(', ')
-      : '',
-    director: 'Unknown',
-    runtime: movie.runtime ? `${movie.runtime} min` : 'N/A',
-    overview: movie.overview || 'No description available.',
-  }
-}
-
 export async function getFeaturedMovies() {
   const result = await tmdbFetch('/discover/movie', {
     language: 'en-US',
@@ -83,7 +64,27 @@ export async function searchMovies(query) {
 export async function getMovieDetails(movieId) {
   const result = await tmdbFetch(`/movie/${movieId}`, {
     language: 'en-US',
+    append_to_response: 'credits',
   })
 
-  return formatMovieDetail(result)
+  const director =
+    result.credits?.crew?.find((person) => person.job === 'Director')?.name ||
+    'Unknown'
+
+  return {
+    id: result.id,
+    title: result.title,
+    poster_url: result.poster_path
+      ? `${TMDB_IMAGE_BASE_URL}${result.poster_path}`
+      : '',
+    release_year: result.release_date
+      ? new Date(result.release_date).getFullYear()
+      : 'N/A',
+    genre: Array.isArray(result.genres)
+      ? result.genres.map((genre) => genre.name).join(', ')
+      : '',
+    director,
+    runtime: result.runtime ? `${result.runtime} min` : 'N/A',
+    overview: result.overview || 'No description available.',
+  }
 }
