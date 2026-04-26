@@ -1,5 +1,7 @@
 # Database Schema
 
+![ERD pic](image.png)
+
 ## Implementation Notes
 
 - Supabase Auth handles login and user identity; the app database stores profile and movie activity data.
