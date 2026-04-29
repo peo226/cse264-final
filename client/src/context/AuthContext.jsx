@@ -7,18 +7,52 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
+    // Check if we have an active session and set the user accordingly
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null)
+
+        // Helper function to fetch user role
+        const fetchUserRole = async (userId) => {
+            const { data } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', userId)
+                .single()
+            return data?.role
+        }
+
+        // Get initial session
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
+            console.log('AuthContext: session retrieved', session)
+
+            if (session?.user) {
+                const role = await fetchUserRole(session.user.id)
+                setUser({ ...session.user, role })
+            } else {
+                setUser(null)
+            }
+            setLoading(false)
+        }).catch((error) => {
+            console.error('AuthContext: error getting session', error)
             setLoading(false)
         })
 
+        // Listen for auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null)
+
+            // Break the execution flow with setTimeout to avoid deadlock
+            setTimeout(async () => {
+                if (session?.user) {
+                    const role = await fetchUserRole(session.user.id)
+                    setUser({ ...session.user, role })
+                } else {
+                    setUser(null)
+                }
+            }, 0)
         })
 
         return () => subscription.unsubscribe()
     }, [])
+
 
     const register = async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password })
