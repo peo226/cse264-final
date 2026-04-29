@@ -1,6 +1,12 @@
 # Database Schema
 
-![ERD pic](image.png)
+## ER Diagram
+
+![ER diagram](er-diagram.png)
+
+## Relational Schema
+
+![Relational schema](relational-schema.png)
 
 ## Implementation Notes
 
