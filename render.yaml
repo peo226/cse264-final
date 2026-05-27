@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: movie-watchlist-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: POSTGRES_USERNAME
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_PORT
+        sync: false
+      - key: POSTGRES_DBNAME
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        sync: false
